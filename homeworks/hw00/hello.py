@@ -1,4 +1,9 @@
-print("python 3.12.11")
-print("numpy 2.5.2")
-print("pandas 3.0.5")
-print("matplotlib 3.11.2")
+import sys
+print(f"python : {sys.version}")
+import matplotlib as mt
+print(f"matplotlib : {mt.__version__}")
+import pandas as pd
+print (f"pandas : {pd.__version__}")
+import numpy as np
+print (f"numpy : {np.__version__}")
+

@@ -22,10 +22,9 @@ assert (wells_clean["radius_m"] > 0).all()
 assert (lay["thickness_m"] > 0).all()
 assert lay["porosity_fraction"].between(0, 1).all()
 
-pressure_pa = wells_clean["pressure_mpa"] * 1_000_000
-pressure_difference_mpa = 12 - wells_clean["pressure_mpa"]
-relative_change_percent = pressure_difference_mpa / 12 * 100
-print(relative_change_percent)
+wells_clean["pressure_pa"] = wells_clean["pressure_mpa"] * 1_000_000
+wells_clean["pressure_difference_mpa"] = 12 - wells_clean["pressure_mpa"]
+wells_clean["relative_change_percent"] = wells_clean["pressure_difference_mpa"] / 12 * 100
 du.rast(coord)
 log_radius = np.log(coord["radius_m"])
 decay = np.exp(-pump["time_h"] / 36)
@@ -44,7 +43,7 @@ mask = pressure < pressure.mean()
 selected = pressure[mask]
 print(selected)
 
-mask2 = (wells_clean["radius_m"]*np.cos(wells_clean["azimuth_deg"]*np.pi/180))**2 + (wells_clean["radius_m"]*np.sin(wells_clean["azimuth_deg"]*np.pi/180))**2 > 100
+mask2 = wells_clean["radius_m"] > 100
 selected2 = wells_clean[mask2]
 print(selected2)
 
@@ -56,6 +55,8 @@ print(pressure_matrix.ndim)
 print(pressure_matrix.shape)  
 print(pressure_matrix.size)   
 print(pressure_matrix.dtype)
+processed_dir = ROOT/ "data/processed/hw01"
+processed_dir.mkdir(parents= True,exist_ok = True)
 
 experiment_1 = pressure_matrix
 experiment_2 = pressure_matrix + 0.05
@@ -77,17 +78,18 @@ restored = flat.reshape(pressure_cube.shape)
 
 assert np.allclose(restored, pressure_cube)
 np.save(ROOT/"data"/"processed"/"hw01"/"pressure_matrix.npy", pressure_matrix)
-matrix_loaded = np.load(ROOT/"data"/"processed"/"hw01"/"pressure_matrix.npy")
+matrix_loaded = np.load(processed_dir/"pressure_matrix.npy")
 
 np.savez(ROOT/"data"/"processed"/"hw01"/"pressure_cube.npz",pressure_cube)
-cube_loaded = np.load(ROOT/"data"/"processed"/"hw01"/ "pressure_cube.npz")
+cube_loaded = np.load(processed_dir/ "pressure_cube.npz")
 
 table1 = du.DatasetInfo("wells",coord)
 table2 = du.DatasetInfo("layers",lay)
 table3 = du.DatasetInfo("pumping_test",pump)
 
-wells_clean.to_excel(ROOT/"data"/"processed"/"hw01"/"wells_clean.csv")
+wells_clean.to_csv(processed_dir/"wells_clean.csv",mode='w')
 
+print(pd.read_csv(processed_dir/"wells_clean.csv"))
 wb = px.Workbook()
 
 sheet = wb.active
