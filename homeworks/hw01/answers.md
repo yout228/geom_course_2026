@@ -26,5 +26,5 @@ pumping_test.txt:
 6 Зачем после сохранения загружать массив обратно?
     Для сравнения с исходными.
 7 Какие файлы являются исходными, а какие создаются программой?
-    Файли,формата py - исходные.
-    Файлы, формата txt,xlsx,npy,npz,csv - создаются программами.
+    Исходными являются: wells.csv, pumpin_test.txt,layers.xslx
+    Создаются программой: wells_clean.csv,table_summary.xslx,pressure_cube.npz,pressure_matrix.npy,results.txt 
