@@ -87,7 +87,7 @@ table1 = du.DatasetInfo("wells",coord)
 table2 = du.DatasetInfo("layers",lay)
 table3 = du.DatasetInfo("pumping_test",pump)
 
-wells_clean.to_csv(processed_dir/"wells_clean.csv",mode='w')
+wells_clean.to_csv(processed_dir/"wells_clean.csv",mode='w',sep = ",")
 
 print(pd.read_csv(processed_dir/"wells_clean.csv"))
 wb = px.Workbook()
