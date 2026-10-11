@@ -1,7 +1,6 @@
 from pathlib import Path
 import pandas as pd
 import numpy as np
-import openpyxl as px
 import matplotlib.pyplot as plt
 
 ROOT = Path(__file__).resolve().parents[2]
