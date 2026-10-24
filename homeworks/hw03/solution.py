@@ -1,7 +1,6 @@
 from pathlib import Path
 import pandas as pd
 import numpy as np
-import openpyxl as px
 import matplotlib.pyplot as plt
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -40,6 +39,7 @@ ax[0,0].plot(time_h,well_pressure_mpa,'r',label='давление в скваж�
 ax[0,0].legend()
 ax[0,0].set_xlabel('Время, ч', fontsize=12)
 ax[0,0].set_ylabel('Давление, МПа', fontsize=12)
+ax[0,0].set_title("A: Давление во времени")
 
 cs = ax[0, 1].scatter(radius_m, observation_pressure_mpa,c=observation_pressure_mpa, cmap="viridis")
 cb = ax[0, 1].figure.colorbar(cs, ax=ax[0, 1] ,orientation='vertical',location='left')
@@ -47,30 +47,31 @@ cb.set_ticks([])
 ax[0,1].set_xlabel('Расстояние, м', fontsize=12)
 cb.set_label('Давление, МПа', fontsize=12)
 cb.ax.yaxis.set_label_position('left')
+ax[0,1].set_title("B: Давление в наблюдательных скважинах")
 
 ax[1,0].bar(well_id,observation_drop_mpa)
 ax[1,0].set_xlabel('ID скважины', fontsize=12)
 ax[1,0].set_ylabel('Давление, МПа', fontsize=12)
+ax[1,0].set_title("C: Давления по скважинам")
 
 ax[1,1].boxplot([boundary_pressure_mpa,well_pressure_mpa],tick_labels=['давление на границе', 'давление на скважине'])
-ax[1,1].set_ylabel('Давление на скважине', fontsize=12)
+ax[1,1].set_ylabel('Давление на скважине, МПа', fontsize=12)
+ax[1,1].set_title("D: Размах давления")
 
-for x, c in zip(ax.ravel(), "ABCD"):
-    x.set_title(c)
 
 
 fig2,ax2 = plt.subplots(1,2,figsize=(12, 8),constrained_layout=True,)
 
 ax2[0].boxplot([boundary_pressure_mpa,well_pressure_mpa],tick_labels=['давление на границе', 'давление на скважине'])
-ax2[0].set_ylabel('Давление на скважине', fontsize=12)
+ax2[0].set_ylabel('Давление,МПа', fontsize=12)
+ax2[0].set_title("A: Ящик с усами")
 
 ax2[1].violinplot([boundary_pressure_mpa,well_pressure_mpa])
-ax2[1].set_ylabel('Давление на скважине', fontsize=12)
+ax2[1].set_ylabel('Давление , МПа', fontsize=12)
 ax2[1].set_xticks([1, 2])
 ax2[1].set_xticklabels(['Давление на границе', 'Давление на скважине'])
+ax2[1].set_title("B: Скрипичная диаграмма")
 
-for x, c in zip(ax2.ravel(), "ABCD"):
-    x.set_title(c)
  
 
 #fig.show()
@@ -85,7 +86,18 @@ fig2.savefig(ROOT /"figures"/"hw03"/"distributions.svg" , bbox_inches="tight")
 plt.close(fig)
 plt.close(fig2)
 
-np.savez("viz_data.npz",time_h=time_h,boundary_pressure_mpa=boundary_pressure_mpa,well_pressure_mpa=well_pressure_mpa,pressure_drop_mpa=pressure_drop_mpa,well_id=well_id,radius_m=radius_m,observation_pressure_mpa=observation_pressure_mpa,observation_drop_mpa=observation_drop_mpa,)
 
+np.savez(ROOT/"homeworks"/"hw03"/"viz_data.npz",time_h=time_h,
+    boundary_pressure_mpa=boundary_pressure_mpa,
+    well_pressure_mpa=well_pressure_mpa,
+    pressure_drop_mpa=pressure_drop_mpa,
+    well_id=well_id,
+    radius_m=radius_m,
+    observation_pressure_mpa=observation_pressure_mpa,
+    observation_drop_mpa=observation_drop_mpa)
+
+loaded = np.load(ROOT/"homeworks"/"hw03"/"viz_data.npz",allow_pickle = True)
+assert np.allclose(loaded["time_h"],time_h)
+assert loaded["well_id"].shape == well_id.shape
 
 print("Done!")
