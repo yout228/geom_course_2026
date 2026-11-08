@@ -66,7 +66,9 @@ mesh = axes[0].pcolormesh(
     shading="auto",
     cmap="viridis",
     vmin=vmin,
-    vmax=vmax,
+    vmax=vmax, 
+    linewidths=0.5,
+    edgecolors="white"
 )
 
 assert (loaded["radius_m"] > 0).all()
@@ -102,6 +104,11 @@ lines = axes[1].contour(
     linewidths=0.6,
 )
 axes[1].clabel(lines, fmt="%.2f")
+xlim = (loaded["time_h"].min(), loaded["time_h"].max())
+ylim = (loaded["radius_m"].min(), loaded["radius_m"].max())
+for ax in axes:
+    ax.set_xlim(*xlim)
+    ax.set_ylim(*ylim)
 
 fig.savefig(ROOT/"figures"/"hw04"/ "pressure_maps.png", dpi=200)
 fig.savefig(ROOT/"figures"/"hw04"/ "pressure_maps.svg")
@@ -121,8 +128,11 @@ ax.set_ylabel("Расстояние, м")
 ax.set_xlabel("Время, ч")
 ax.set_title("Только изолинии")
 
+
+
 fig2.savefig(ROOT/"figures"/"hw04"/ "pressure_isolines.png", dpi=200)
 fig2.savefig(ROOT/"figures"/"hw04"/ "pressure_isolines.svg")
+plt.close(fig)
 
 np.savez(
     ROOT/"homeworks"/"hw04"/"field_data.npz",
@@ -132,9 +142,35 @@ np.savez(
     pressure_field=pressure_field,
     contour_levels=levels,
 )
+expected_saved_keys = {
+    "time_h",
+    "radius_m",
+    "well_id",
+    "pressure_field",
+    "contour_levels",
+}
 
 loaded2 = np.load(ROOT/"homeworks"/"hw04"/"field_data.npz",allow_pickle = True)
-assert np.allclose(loaded2["time_h"],loaded["time_h"])
+actual_saved_keys = set(loaded2.keys())
+assert actual_saved_keys == expected_saved_keys, (
+    "Набор ключей в field_data.npz не совпадает. "
+    f"Лишние: {sorted(actual_saved_keys - expected_saved_keys)}, "
+    f"отсутствующие: {sorted(expected_saved_keys - actual_saved_keys)}"
+)
+
+
+assert loaded2["time_h"].shape == (13,)
+assert loaded2["radius_m"].shape == (7,)
+assert loaded2["well_id"].shape == (7,)
 assert loaded2["pressure_field"].shape == (13, 7)
+assert loaded2["contour_levels"].shape == (9,)
+
+
+assert np.allclose(loaded2["time_h"],          loaded["time_h"])
+assert np.allclose(loaded2["radius_m"],        loaded["radius_m"])
+assert np.array_equal(loaded2["well_id"],      loaded["well_id"])
+assert np.allclose(loaded2["pressure_field"],  pressure_field)
+assert np.allclose(loaded2["contour_levels"],  levels)
+
 
 print("Done!")
